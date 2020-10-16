@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+	add info
+{% endblock title %}
+
+{% block content %}
+	<div class="mt-3">
+		<div id="box"></div>
+		<form action="" method="POST" id="sForm">
+			{% csrf_token %}
+			{{form | crispy}}
+			<button type="submit" class="btn btn-primary">Send</button>
+		</form>
+	</div>
+{% endblock content %}
+
+{% block scripts %}
+	<script>
+		const form = document.getElementById('sForm')
+		const box = document.getElementById('box')
+		const name = document.getElementById('id_name')
+		const description = document.getElementById('id_description')
+		const csrf = document.getElementsByName('csrfmiddlewaretoken')
+		url=""
+		const handleAlert = (type, text) =>{
+			box.innerHTML += `<div class="alert alert-${type}" role="alert">${text}
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			    <span aria-hidden="true">&times;</span>
+			</button>
+			</div>`
+			
+		}
+		form.addEventListener('submit', (e)=>{
+			e.preventDefault()
+			console.log('submitted')
+			$.ajax({
+				type: 'POST',
+				url: url,
+
+				data : {
+					'csrfmiddlewaretoken': csrf[0].value,
+					'name': name.value,
+					'description': description.value
+				},
+				success : function(response){
+					const sText = `Successfully saved ${response.name}`
+					handleAlert('success', sText)
+					name.value=""
+					description.value=""
+				},
+				error: function(error){
+					handleAlert('danger', 'OOps.. something went wrong')
+					name.value=""
+					description.value=""
+				}
+			})
+		})
+		// $('.alert').alert()
+	</script>
+	<script>
+		$().alert('close')
+	</script>
+{% endblock scripts %}
